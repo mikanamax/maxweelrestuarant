@@ -24,7 +24,7 @@ payable contract Reservations =
     orders = 0}
 
 
-  //returns lenght of lands registered
+  //returns lenght of orders
   entrypoint ordersLength() : int = 
     state.orders  
     
@@ -34,7 +34,7 @@ payable contract Reservations =
       Some(x) => x  
 
 
-    //Registers a Land
+    //Registers Meal Order
     
   payable stateful entrypoint createReservation( name' : string, meal' : string, price' :int,  users' : int) = 
     let timestamp = Chain.timestamp
@@ -80,7 +80,7 @@ var orders = 0;
 
 
 
-function renderProduct() {
+function renderOrder() {
   orderArray = orderArray.sort(function (a, b) {
     return b.Price - a.Price
   })
@@ -130,10 +130,10 @@ window.addEventListener('load', async () => {
 
   client = await Ae.Aepp()
 
-  hackLength = await callStatic('ordersLength', []);
+  mealLength = await callStatic('ordersLength', []);
 
 
-  for (let i = 1; i <= hackLength; i++) {
+  for (let i = 1; i <= mealLength; i++) {
     const Orders = await callStatic('getOrder', [i]);
 
 
@@ -150,7 +150,7 @@ window.addEventListener('load', async () => {
 
     })
   }
-  renderProduct();
+  renderOrder();
   $("#loadings").hide();
 });
 
@@ -192,7 +192,7 @@ $('#placeOrder').click(async function () {
 
 
   })
-  renderProduct();
+  renderOrder();
   // location.reload(true);
   $("#loadings").hide();
 
