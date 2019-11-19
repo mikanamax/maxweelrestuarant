@@ -129,7 +129,7 @@ window.addEventListener('load', async () => {
   $("#loadings").show();
 
   client = await Ae.Aepp()
-
+  console.log("Client:",client)
   mealLength = await callStatic('ordersLength', []);
 
 
