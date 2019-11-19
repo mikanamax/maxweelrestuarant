@@ -157,15 +157,6 @@ window.addEventListener('load', async () => {
 
 
 
-
-
-
-function getTotal(){
-    var doc = document.getElementById('totalprice')
-    doc.innerHTML("total price : ", ($('#users').val()) *300 );
-}
-
-
 $('#placeOrder').click(async function () {
     $(".spinner").show();
 
