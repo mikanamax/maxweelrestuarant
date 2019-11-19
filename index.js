@@ -24,7 +24,7 @@ payable contract Reservations =
     orders = 0}
 
 
-  //returns lenght of orders
+  //returns lenght of lands registered
   entrypoint ordersLength() : int = 
     state.orders  
     
@@ -34,7 +34,7 @@ payable contract Reservations =
       Some(x) => x  
 
 
-    //Registers Meal Order
+    //Registers a Land
     
   payable stateful entrypoint createReservation( name' : string, meal' : string, price' :int,  users' : int) = 
     let timestamp = Chain.timestamp
@@ -80,125 +80,113 @@ var orders = 0;
 
 
 
-function renderOrder() {
-  orderArray = orderArray.sort(function (a, b) {
-    return b.Price - a.Price
-  })
-  var template = $('#template').html();
+function renderProduct() {
+    orderArray = orderArray.sort(function (a, b) {
+        return b.Price - a.Price
+    })
+    var template = $('#template').html();
 
-  Mustache.parse(template);
-  var rendered = Mustache.render(template, {
-    orderArray
-  });
-
-
+    Mustache.parse(template);
+    var rendered = Mustache.render(template, {
+        orderArray
+    });
 
 
-  $('#body').html(rendered);
 
+
+    $('#body').html(rendered);
+    console.log("rendered")
 }
-
+// //Create a asynchronous read call for our smart contract
 async function callStatic(func, args) {
-
-  const contract = await client.getContractInstance(contractSource, {
-    contractAddress
-  });
-
-  const calledGet = await contract.call(func, args, {
-    callStatic: true
-  }).catch(e => console.error(e));
-
-  const decodedGet = await calledGet.decode().catch(e => console.error(e));
-
-  return decodedGet;
+    //Create a new contract instance that we can interact with
+    const contract = await client.getContractInstance(contractSource, {
+        contractAddress
+    });
+    
+    const calledGet = await contract.call(func, args, {
+        callStatic: true
+    }).catch(e => console.error(e));
+    
+    const decodedGet = await calledGet.decode().catch(e => console.error(e));
+  
+    return decodedGet;
 }
 
 async function contractCall(func, args, value) {
-  const contract = await client.getContractInstance(contractSource, {
-    contractAddress
-  });
+    const contract = await client.getContractInstance(contractSource, {
+        contractAddress
+    });
+    //Make a call to write smart contract func, with aeon value input
+    const calledSet = await contract.call(func, args, {
+        amount: value
+    }).catch(e => console.error(e));
 
-  const calledSet = await contract.call(func, args, {
-    amount: value
-  }).catch(e => console.error(e));
-
-  return calledSet;
+    return calledSet;
 }
 
 window.addEventListener('load', async () => {
-  $("#loadings").show();
+    $(".spinner").show();
 
-  client = await Ae.Aepp()
+    client = await Ae.Aepp()
 
-  mealLength = await callStatic('ordersLength', []);
-
-
-  for (let i = 1; i <= mealLength; i++) {
-    const Orders = await callStatic('getOrder', [i]);
+    hackLength = await callStatic('ordersLength', []);
 
 
+    for (let i = 1; i <= hackLength; i++) {
+        const Orders = await callStatic('getOrder', [i]);
 
-    orderArray.push({
-      meal: Orders.meal,
-      name: Orders.name,
-      users: Orders.users,
-      price: Orders.price,
-      timestamp: new Date(Orders.timestamp),
-      owner: Orders.owner
+        console.log("for loop reached", "pushing to array")
+
+        orderArray.push({
+            meal: Orders.meal,
+            name: Orders.name,
+            users: Orders.users,
+            price: Orders.price,
+            timestamp: new Date(Orders.timestamp),
+            owner :Orders.owner
 
 
 
-    })
-  }
-  renderOrder();
-  $("#loadings").hide();
+        })
+    }
+    renderProduct();
+    $(".spinner").hide();
 });
 
 
 
 
-
-
-
-function getTotal() {
-  var doc = document.getElementById('totalprice')
-  doc.innerHTML("total price : ", ($('#users').val()) * 300);
-}
-
-
 $('#placeOrder').click(async function () {
-  $("#loadings").show();
+    $(".spinner").show();
 
-  name = ($('#name').val()),
+    name = ($('#name').val()),
 
-    users = ($('#users').val()),
+        users = ($('#users').val()),
+        
 
+        meal = ($('#Meal').val());
 
-    meal = ($('#Meal').val());
-
-  price = users * 300
-  await contractCall('createReservation', [name, meal, price, users], parseInt(price, 10))
-
-
+        price = users * 300
+    await contractCall('createReservation', [name, meal, price, users], parseInt(price,10))
 
 
-
-  orderArray.push({
-    name: name,
-    meal: meal,
-    price: price,
-    users: users
+    orderArray.push({
+        name: name,
+        meal: meal,
+        price: price,
+        users: users
 
 
 
-  })
-  renderOrder();
-  // location.reload(true);
-  $("#loadings").hide();
+    })
+    renderProduct();
 
-  console.log("SUCCESSFUL")
+    $(".spinner").hide();
 
-  document.getElementById("confirmation").innerHTML = " Reservation purchased Successfully"
+    console.log("SUCCESSFUL")
 
-  // $.colorbox({html:"<h1>Reservation booked successfully</h1>"});
+    document.getElementById("confirmation").innerHTML = " Reservation purchased Successfully"
+
+    // $.colorbox({html:"<h1>Reservation booked successfully</h1>"});
 });
